@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Hala Madrid! - Web de Fans (Tailwind CSS)</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'madrid-blue': '#004993',    /* Azul Oscuro */
+                        'madrid-gold': '#FFD700',    /* Dorado */
+                        'madrid-white': '#ffffff',
+                        'madrid-dark-blue': '#011E48', /* Un azul más oscuro */
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .navbar-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-container-custom {
+            order: 2; /* Mueve el logo a la derecha */
+        }
+        .nav-links-custom {
+            order: 1; /* Mueve los enlaces a la izquierda */
+        }
+        .trophy-highlight {
+            border: 3px solid #ff4500; /* Borde rojo-anaranjado para destacar */
+            background-color: #fffaf0; 
+            transform: scale(1.1);
+        }
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+        }
+        .carousel-slide {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-slide img {
+            width: 100%;
+            flex-shrink: 0;
+            object-fit: cover;
+            height: 400px; /* Altura fija para el carrusel */
+        }
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px; /* full rounded */
+            cursor: pointer;
+            z-index: 10;
+        }
+        .carousel-button.prev {
+            left: 1rem;
+        }
+        .carousel-button.next {
+            right: 1rem;
+        }
+        /* Estilos para los modales */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white; /* Fondo blanco sólido */
+            margin: auto;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .modal-content p, .modal-content h3 {
+            color: #1f2937; /* Asegurar visibilidad */
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--madrid-blue);
+            text-decoration: none;
+        }
+        /* Estilos para las tarjetas de Jugadores/Leyendas */
+        .player-card {
+            width: 160px; /* Tamaño fijo para las tarjetas */
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+        .player-card img {
+            object-fit: cover;
+            height: 100%;
+        }
+        .player-card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 73, 147, 0.85); /* madrid-blue con transparencia */
+            color: white;
+            padding: 0.5rem;
+        }
+        .player-card-legend {
+            border: 3px solid var(--madrid-gold);
+            cursor: pointer;
+        }
+        .player-card-eternal {
+            opacity: 0.8; /* Ligeramente atenuado para el álbum de honor */
+            filter: grayscale(10%);
+        }
+        /* Estilos para la navegación mejorada */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .mobile-menu-button {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .nav-links-custom {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--madrid-white);
+                padding: 1rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .nav-links-custom.active {
+                display: flex;
+            }
+            .mobile-menu-button {
+                display: block;
+            }
+        }
+        /* Estilos para la sección de trofeos adicionales */
+        .other-trophies-section {
+            background: linear-gradient(135deg, #004993 0%, #011E48 100%);
+            color: white;
+        }
+        .trophy-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .super-ballon-dor-card {
+            background: linear-gradient(135deg, #FFD700 0%, #FFEC8B 100%);
+            color: #004993;
+            border: 4px solid #004993;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Nuevos estilos para fondos de trofeos */
+        .ucl-section {
+            background-image: url('https://files.catbox.moe/2qn7ab.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .other-trophies-section {
+            background-image: url('https://files.catbox.moe/ha104i.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(0, 73, 147, 0.9);
+        }
+        .matches-section {
+            background-image: url('https://files.catbox.moe/sz9rqe.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .legado-section {
+            background-image: url('https://files.catbox.moe/7nmcuz.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+        .forum-section {
+            background-image: url('https://files.catbox.moe/15p800.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .contact-section {
+            background-image: url('https://files.catbox.moe/l1e9oy.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <nav class="navbar-custom bg-madrid-white shadow-md p-4 sticky top-0 z-50 border-b-4 border-madrid-gold">
+        <div class="nav-container">
+            <div class="mobile-menu-button cursor-pointer text-madrid-blue text-xl">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <ul class="nav-links-custom flex space-x-6 text-sm font-bold">
+                <li><a href="#inicio" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">Inicio</a></li>
+                <li><a href="#ucl" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">Nuestra Historia en UCL</a></li>
+                <li><a href="#otros-trofeos" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">Otros Trofeos</a></li>
+                <li><a href="#partidos" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">Partidos Legendarios</a></li>
+                <li><a href="#legado" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">El Legado</a></li>
+                <li><a href="#foro" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">Foro Madridista</a></li>
+                <li><a href="#contacto" class="text-madrid-blue hover:text-madrid-gold hover:bg-madrid-blue p-2 rounded transition duration-200">Contacto</a></li>
+            </ul>
+
+            <div class="logo-container-custom cursor-pointer transition transform duration-100 hover:scale-105" id="logo-container">
+                <img src="https://files.catbox.moe/i0hmqv.png" alt="Logo Real Madrid" id="logo-slogan" title="Haz clic para el eslogan" class="h-12 w-auto">
+            </div>
+        </div>
+    </nav>
+
+    <main class="p-5 md:p-10">
+        
+        <section id="inicio" class="hero-section bg-madrid-white p-8 mb-8 rounded-lg shadow-lg text-center">
+            
+            <div class="carousel-container w-full max-w-4xl mx-auto mb-10">
+                <div class="carousel-slide" id="carousel-slide">
+                    <img src="https://files.catbox.moe/qyie9e.jpg" alt="Real Madrid Celebración 1" class="w-full">
+                    <img src="https://files.catbox.moe/2qn7ab.jpg" alt="Real Madrid Celebración 2" class="w-full">
+                    <img src="https://files.catbox.moe/sz9rqe.jpg" alt="Estadio Santiago Bernabéu" class="w-full">
+                    <!-- Nuevas imágenes añadidas al carrusel -->
+                    <img src="https://files.catbox.moe/wplvli.jpg" alt="Real Madrid Celebración 3" class="w-full">
+                    <img src="https://files.catbox.moe/m5769e.jpg" alt="Real Madrid Celebración 4" class="w-full">
+                    <img src="https://files.catbox.moe/3k6m7t.jpg" alt="Real Madrid Celebración 5" class="w-full">
+                    <img src="https://files.catbox.moe/1u9o80.jpg" alt="Real Madrid Celebración 6" class="w-full">
+                    <img src="https://files.catbox.moe/9fvkdi.jpg" alt="Real Madrid Celebración 7" class="w-full">
+                </div>
+                <div class="carousel-button prev" id="prev-button"><i class="fas fa-chevron-left"></i></div>
+                <div class="carousel-button next" id="next-button"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            
+            <h1 class="text-5xl font-extrabold text-madrid-blue mb-4 border-b-4 border-madrid-gold pb-2 inline-block">¡Bienvenidos, Madridistas!</h1>
+            <p class="text-xl text-gray-700">El mejor club del mundo. La historia por hacer.</p>
+        </section>
+
+        <section id="ucl" class="ucl-section bg-madrid-white p-8 mb-8 rounded-lg shadow-lg text-center">
+            <h2 class="text-4xl font-bold text-madrid-blue mb-6 border-b-2 border-madrid-gold pb-1 inline-block">🏆 La Historia de la Decimoquinta: ¡Reyes de Europa!</h2>
+            <p class="mb-8 text-lg">Real Madrid, el club más laureado del mundo, con un récord histórico de <strong>15</strong> Copas de Europa / UEFA Champions League.</p>
+
+            <div class="trophy-row flex flex-wrap justify-center gap-4 mb-8">
+                
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1956" data-final="Real Madrid 4-3 Stade de Reims">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1956</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1957" data-final="Real Madrid 2-0 Fiorentina">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1957</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1958" data-final="Real Madrid 3-2 Milan (Prórroga)">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1958</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1959" data-final="Real Madrid 2-0 Stade de Reims">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1959</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1960" data-final="Real Madrid 7-3 Eintracht Frankfurt">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1960</p>
+                </div>
+                
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1966" data-final="Real Madrid 2-1 Partizan">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1966</p>
+                </div>
+                
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="1998" data-final="Real Madrid 1-0 Juventus">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">1998</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="2000" data-final="Real Madrid 3-0 Valencia">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">2000</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="2002" data-final="Real Madrid 2-1 Bayer Leverkusen">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">2002</p>
+                </div>
+                
+                <div class="trophy-item p-3 rounded-lg w-24 shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl font-bold trophy-highlight cursor-pointer" data-year="2014" data-final="Real Madrid 4-1 Atlético de Madrid (Prórroga)">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm">2014 (Décima)</p>
+                </div>
+                
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="2016" data-final="Real Madrid 1-1 Atlético de Madrid (5-3 Penaltis)">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">2016</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="2017" data-final="Real Madrid 4-1 Juventus">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">2017</p>
+                </div>
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="2018" data-final="Real Madrid 3-1 Liverpool">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">2018</p>
+                </div>
+                
+                <div class="trophy-item bg-madrid-white p-3 rounded-lg border border-gray-300 w-20 shadow-md transition transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-year="2022" data-final="Real Madrid 1-0 Liverpool">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm font-medium">2022</p>
+                </div>
+                
+                <div class="trophy-item p-3 rounded-lg w-24 shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl font-bold trophy-highlight cursor-pointer" data-year="2024" data-final="Real Madrid 2-0 Borussia Dortmund">
+                    <i class="fas fa-trophy text-3xl text-madrid-gold mb-1"></i>
+                    <p class="text-sm">2024 (15)</p>
+                </div>
+            </div>
+            
+            <div class="ucl-history max-w-3xl mx-auto text-left p-6 bg-madrid-blue text-madrid-white rounded-xl shadow-xl">
+                <h3 class="text-2xl font-semibold text-madrid-gold mb-3">Resumen de las Victorias</h3>
+                <p>El Real Madrid es el único club que ha ganado <strong>cinco Copas de Europa consecutivas</strong> (1956-1960). Tras la 'Sexta' en 1966, el club esperó 32 años por la 'Séptima' (1998). La era de mayor dominio se consolidó con la victoria de <strong>La Décima</strong> en 2014 y el histórico triplete (2016, 2017, 2018), antes de conseguir la Decimocuarta (2022) y la más reciente, <strong>La Decimoquinta (2024)</strong>, consolidando su legado inigualable.</p>
+            </div>
+        </section>
+
+        <!-- NUEVA SECCIÓN: OTROS TROFEOS -->
+        <section id="otros-trofeos" class="other-trophies-section p-8 mb-8 rounded-lg shadow-lg text-center">
+            <h2 class="text-4xl font-bold text-madrid-gold mb-8 border-b-2 border-madrid-gold pb-1 inline-block">🏆 Otros Trofeos del Real Madrid</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Copa del Rey -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="trophy-icon text-madrid-blue">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-madrid-blue mb-2">Copa del Rey</h3>
+                    <p class="text-4xl font-bold text-madrid-gold mb-2">20</p>
+                    <p class="text-sm text-gray-600">Títulos de Copa</p>
+                    <div class="mt-4 text-left">
+                        <p class="text-sm font-semibold">Algunos años destacados:</p>
+                        <ul class="text-xs mt-2 space-y-1">
+                            <li>1905, 1906, 1907, 1908</li>
+                            <li>1917, 1934, 1936</li>
+                            <li>1974, 1975, 1980</li>
+                            <li>2011, 2014, 2023</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Supercopa de España -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="trophy-icon text-madrid-blue">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-madrid-blue mb-2">Supercopa de España</h3>
+                    <p class="text-4xl font-bold text-madrid-gold mb-2">13</p>
+                    <p class="text-sm text-gray-600">Títulos de Supercopa</p>
+                    <div class="mt-4 text-left">
+                        <p class="text-sm font-semibold">Algunos años destacados:</p>
+                        <ul class="text-xs mt-2 space-y-1">
+                            <li>1988, 1989, 1990</li>
+                            <li>1993, 1997, 2001</li>
+                            <li>2003, 2008, 2012</li>
+                            <li>2017, 2020, 2022</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Supercopa de Europa -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="trophy-icon text-madrid-blue">
+                        <i class="fas fa-globe-europe"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-madrid-blue mb-2">Supercopa de Europa</h3>
+                    <p class="text-4xl font-bold text-madrid-gold mb-2">6</p>
+                    <p class="text-sm text-gray-600">Títulos de Supercopa Europea</p>
+                    <div class="mt-4 text-left">
+                        <p class="text-sm font-semibold">Años de victoria:</p>
+                        <ul class="text-xs mt-2 space-y-1">
+                            <li>2002 vs. Feyenoord</li>
+                            <li>2014 vs. Sevilla</li>
+                            <li>2016 vs. Sevilla</li>
+                            <li>2017 vs. Manchester United</li>
+                            <li>2022 vs. Eintracht Frankfurt</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Mundial de Clubes -->
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="trophy-icon text-madrid-blue">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-madrid-blue mb-2">Mundial de Clubes</h3>
+                    <p class="text-4xl font-bold text-madrid-gold mb-2">5</p>
+                    <p class="text-sm text-gray-600">Títulos Mundiales</p>
+                    <div class="mt-4 text-left">
+                        <p class="text-sm font-semibold">Años de victoria:</p>
+                        <ul class="text-xs mt-2 space-y-1">
+                            <li>1960, 1998, 2002</li>
+                            <li>2014, 2016, 2017</li>
+                            <li>2018, 2022</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trofeos de Liga -->
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
+                <h3 class="text-3xl font-bold text-madrid-blue mb-4">🏅 La Liga Española</h3>
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-center md:text-left mb-4 md:mb-0">
+                        <p class="text-5xl font-bold text-madrid-gold">36</p>
+                        <p class="text-xl text-madrid-blue font-semibold">Títulos de Liga</p>
+                    </div>
+                    <div class="text-sm text-gray-600 max-w-md">
+                        <p class="font-semibold mb-2">Récord histórico en España</p>
+                        <p>El Real Madrid es el equipo con más Ligas en la historia del fútbol español, con títulos en todas las décadas desde los años 30.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="partidos" class="matches-section p-8 mb-8 rounded-lg shadow-lg text-center bg-madrid-white">
+            <h2 class="text-4xl font-bold text-madrid-blue mb-8 border-b-2 border-madrid-gold pb-1 inline-block">⚽ Partidos Más Legendarios</h2>
+            
+            <div class="match-list flex flex-wrap justify-center gap-6">
+                
+                <article class="match-card bg-madrid-white border-2 border-madrid-blue rounded-xl p-6 w-80 shadow-lg text-left transition transform hover:scale-105 hover:shadow-2xl">
+                    <h3 class="text-xl font-semibold text-madrid-blue border-b-2 border-dashed border-madrid-gold pb-2 mb-3">Final Copa de Europa 1960</h3>
+                    <p class="text-lg font-bold mb-2"><strong>Real Madrid 7-3 Eintracht Frankfurt</strong></p>
+                    <p class="text-sm text-gray-700">Una exhibición de fútbol en Hampden Park, Glasgow, con 4 goles de Puskás y 3 de Di Stéfano. Considerada una de las mejores finales de la historia.</p>
+                </article>
+
+                <article class="match-card bg-madrid-white border-2 border-madrid-blue rounded-xl p-6 w-80 shadow-lg text-left transition transform hover:scale-105 hover:shadow-2xl">
+                    <h3 class="text-xl font-semibold text-madrid-blue border-b-2 border-dashed border-madrid-gold pb-2 mb-3">Final Champions League 2014</h3>
+                    <p class="text-lg font-bold mb-2"><strong>Real Madrid 4-1 Atlético de Madrid (Prórroga)</strong></p>
+                    <p class="text-sm text-gray-700">El partido de <strong>La Décima</strong>. El gol de Sergio Ramos en el minuto 93 cambió la historia, forzando la prórroga y desatando la goleada final.</p>
+                </article>
+
+                <article class="match-card bg-madrid-white border-2 border-madrid-blue rounded-xl p-6 w-80 shadow-lg text-left transition transform hover:scale-105 hover:shadow-2xl">
+                    <h3 class="text-xl font-semibold text-madrid-blue border-b-2 border-dashed border-madrid-gold pb-2 mb-3">Semifinal Champions League 2022</h3>
+                    <p class="text-lg font-bold mb-2"><strong>Real Madrid 3-1 Manchester City</strong></p>
+                    <p class="text-sm text-gray-700">Una de las remontadas más épicas. Dos goles de Rodrygo en los minutos 90 y 91 forzaron la prórroga, culminada por un penalti de Benzema.</p>
+                </article>
+                
+            </div>
+        </section>
+
+        <section id="legado" class="legado-section p-8 mb-8 rounded-lg shadow-lg text-center bg-madrid-white">
+            <h2 class="text-4xl font-bold text-madrid-dark-blue mb-10 border-b-4 border-madrid-blue pb-2 inline-block">👑 El Legado Madridista: Jugadores y Entrenadores</h2>
+            
+            <!-- NUEVA SECCIÓN: SUPER BALÓN DE ORO -->
+            <div class="super-ballon-dor-section mb-12">
+                <h3 class="text-3xl font-semibold text-madrid-blue mb-6 border-b-2 border-madrid-gold pb-1 inline-block">🏆 Super Balón de ORO</h3>
+                
+                <div class="super-ballon-dor-card max-w-2xl mx-auto p-8 rounded-xl text-center mb-8">
+                    <div class="flex justify-center mb-4">
+                        <i class="fas fa-trophy text-5xl text-madrid-blue"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-madrid-blue mb-2">Alfredo Di Stéfano</h4>
+                    <p class="text-lg font-semibold text-madrid-dark-blue mb-4">Único ganador del Super Balón de Oro (1989)</p>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-inner text-left max-w-lg mx-auto">
+                        <p class="text-sm text-gray-700 mb-3">
+                            El <strong>Super Balón de Oro</strong> fue un premio especial otorgado en 1989 por la revista France Football 
+                            para conmemorar el 30º aniversario del Balón de Oro. Este premio fue votado por todos los ganadores 
+                            anteriores del Balón de Oro, quienes eligieron al mejor jugador de la historia hasta ese momento.
+                        </p>
+                        <p class="text-sm text-gray-700">
+                            <strong>Alfredo Di Stéfano</strong> fue elegido como el merecedor de este prestigioso galardón, 
+                            superando a leyendas como Johan Cruyff y Michel Platini. Este reconocimiento consagró 
+                            a Di Stéfano como una de las mayores figuras en la historia del fútbol mundial.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLANTILLA la plantilla de la temporada pasada 2024/2025 -->
+            <h3 class="text-3xl font-semibold text-madrid-blue mb-6 border-b-2 border-madrid-gold pb-1 inline-block">Plantilla la plantilla de la temporada pasada (2024/2025)</h3>
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                
+                <!-- Porteros -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/7nmcuz.jpg" alt="Thibaut Courtois" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">1. Courtois</p>
+                        <p class="text-sm">Portero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/15p800.jpg" alt="Andriy Lunin" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">13. Lunin</p>
+                        <p class="text-sm">Portero</p>
+                    </div>
+                </div>
+                
+                <!-- Defensas -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/l1e9oy.jpg" alt="Éder Militão" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">3. Militão</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/n2e5dc.jpg" alt="David Alaba" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">4. Alaba</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/oagaed.jpg" alt="Raúl Asencio" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">16. Asencio</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/0tq4pg.jpg" alt="Dani Carvajal" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">2. Carvajal</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/grx9eu.jpg" alt="Ferland Mendy" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">23. Mendy</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/uy0sog.jpg" alt="Antonio Rüdiger" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">22. Rüdiger</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/12lhd5.jpg" alt="Fran García" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">20. Fran García</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/65mq2p.jpg" alt="Lucas Vázquez" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">17. Vázquez</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <!-- Centrocampistas -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/58xguc.jpg" alt="Jude Bellingham" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">5. Bellingham</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/zo8945.jpg" alt="Federico Valverde" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">15. Valverde</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/27k4vq.jpg" alt="Aurélien Tchouaméni" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">18. Tchouaméni</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/iklh07.jpg" alt="Eduardo Camavinga" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">12. Camavinga</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/3a5z6x.jpg" alt="Luka Modrić" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">10. Modrić</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/hnqhgu.jpg" alt="Arda Güler" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">24. Güler</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/stymu7.jpg" alt="Brahim Díaz" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">21. Brahim</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <!-- Delanteros -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/58m605.jpg" alt="Vinicius Junior" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">7. Vinicius Jr.</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/dhoetv.jpg" alt="Rodrygo Goes" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">11. Rodrygo</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/zaunpe.jpg" alt="Endrick" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">9. Endrick</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/xsabbk.jpg" alt="Kylian Mbappé" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">10. Mbappé</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLANTILLA ACTUAL 2025/2026 -->
+            <h3 class="text-3xl font-semibold text-madrid-blue mb-6 border-b-2 border-madrid-gold pb-1 inline-block">plantilla actual (2025/2026)</h3>
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                
+                <!-- Porteros -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/7nmcuz.jpg" alt="Thibaut Courtois" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">1. Courtois</p>
+                        <p class="text-sm">Portero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/15p800.jpg" alt="Andriy Lunin" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">13. Lunin</p>
+                        <p class="text-sm">Portero</p>
+                    </div>
+                </div>
+                
+                <!-- Defensas -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/l1e9oy.jpg" alt="Éder Militão" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">3. Militão</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/n2e5dc.jpg" alt="David Alaba" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">4. Alaba</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/uy0sog.jpg" alt="Antonio Rüdiger" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">22. Rüdiger</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/0tq4pg.jpg" alt="Dani Carvajal" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">2. Carvajal</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/grx9eu.jpg" alt="Ferland Mendy" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">23. Mendy</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/12lhd5.jpg" alt="Fran García" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">20. Fran García</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <!-- Nuevos fichajes defensa -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/gvswch.jpg" alt="Dani Ceballos" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">19. Ceballos</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/by4e74.jpg" alt="Trent Alexander-Arnold" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">12. Alexander Arnold</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <!-- Centrocampistas -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/58xguc.jpg" alt="Jude Bellingham" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">5. Bellingham</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/zo8945.jpg" alt="Federico Valverde" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">15. Valverde</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/27k4vq.jpg" alt="Aurélien Tchouaméni" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">18. Tchouaméni</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/iklh07.jpg" alt="Eduardo Camavinga" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">12. Camavinga</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/hnqhgu.jpg" alt="Arda Güler" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">24. Güler</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/stymu7.jpg" alt="Brahim Díaz" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">21. Brahim</p>
+                        <p class="text-sm">Centrocampista</p>
+                    </div>
+                </div>
+                
+                <!-- Nuevos fichajes mediocampo -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/wh0hkh.jpg" alt="Dean Huijsen" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">24. Huijsen</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/oagaed.jpg" alt="Raúl Asencio" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">17. Asencio</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <!-- Delanteros -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/58m605.jpg" alt="Vinicius Junior" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">7. Vinicius Jr.</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/dhoetv.jpg" alt="Rodrygo Goes" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">11. Rodrygo</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/zaunpe.jpg" alt="Endrick" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">9. Endrick</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/xsabbk.jpg" alt="Kylian Mbappé" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">10. Mbappé</p>
+                        <p class="text-sm">Delantero</p>
+                    </div>
+                </div>
+                
+                <!-- Nuevos fichajes delantera -->
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/irfbji.jpg" alt="Álvaro Carreras" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">18. Carreras</p>
+                        <p class="text-sm">Defensa</p>
+                    </div>
+                </div>
+                
+                <div class="player-card rounded-lg shadow-xl bg-gray-200 transition transform hover:-translate-y-1">
+                    <img src="https://files.catbox.moe/bc5gc0.jpg" alt="Franco Mastantuono" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">30. Mastantuono</p>
+                        <p class="text-sm">Mediocampista</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-madrid-blue mb-6 border-b-2 border-madrid-gold pb-1 inline-block">Leyendas Históricas (Activas y Retiradas)</h3>
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Alfredo Di Stéfano" 
+                     data-img="https://files.catbox.moe/hzkekj.jpg" 
+                     data-logros="🏆 Super Balón de Oro (1989) | ⚽ 5 Copas de Europa consecutivas | 🥇 8 Ligas Españolas | 🐐 Considerado uno de los mejores de la historia">
+                    <img src="https://files.catbox.moe/hzkekj.jpg" alt="Alfredo Di Stéfano" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Di Stéfano</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Ferenc Puskás" 
+                     data-img="https://files.catbox.moe/04o3a8.jpg" 
+                     data-logros="⚽ 4 goles en la final de 1960 | 🏆 3 Copas de Europa | 🥇 5 Ligas Españolas | 🎯 242 goles en 262 partidos">
+                    <img src="https://files.catbox.moe/04o3a8.jpg" alt="Ferenc Puskás" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Puskás</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Paco Gento" 
+                     data-img="https://files.catbox.moe/051lg6.jpg" 
+                     data-logros="🏆 6 Copas de Europa (récord) | ⚽ 12 Ligas Españolas | 🥇 Jugador con más títulos oficiales del club (23)">
+                    <img src="https://files.catbox.moe/051lg6.jpg" alt="Paco Gento" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Paco Gento</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Miguel Muñoz" 
+                     data-img="https://files.catbox.moe/2h7ltu.jpg" 
+                     data-logros="🏆 2 Copas de Europa como jugador | ⚽ 9 Ligas como entrenador | 🥇 Jugador y entrenador más exitoso del club">
+                    <img src="https://files.catbox.moe/2h7ltu.jpg" alt="Miguel Muñoz" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Miguel Muñoz</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Zinedine Zidane" 
+                     data-img="https://files.catbox.moe/ok0v8l.jpg" 
+                     data-logros="🏆 Balón de Oro (1998) | ⚽ FIFA World Player (3) | 🥇 Leyenda como jugador y entrenador.">
+                    <img src="https://files.catbox.moe/ok0v8l.jpg" alt="Zinedine Zidane" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Zidane</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Cristiano Ronaldo" 
+                     data-img="https://files.catbox.moe/4pg8rs.jpg" 
+                     data-logros="🏆 Balón de Oro (4 con RM) | ⚽ Bota de Oro Europea (4) | 🐐 Máximo goleador histórico del Club.">
+                    <img src="https://files.catbox.moe/qbloc1.jpg" alt="Cristiano Ronaldo" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Cristiano R.</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Sergio Ramos" 
+                     data-img="https://files.catbox.moe/532dma.jpg" 
+                     data-logros="⭐ 11x FIFA FIFPro World XI | 🥇 Goleador de La Décima | 💪 Capitán y leyenda del club.">
+                    <img src="https://files.catbox.moe/payy0i.jpg" alt="Sergio Ramos" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Sergio Ramos</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Iker Casillas" 
+                     data-img="https://files.catbox.moe/i2mb0x.jpg" 
+                     data-logros="🧤 5x Mejor Portero del Mundo IFFHS | 🏆 Capitán del Triplete UCL | 🛡️ 'San Iker'.">
+                    <img src="https://files.catbox.moe/sxbsmk.jpg" alt="Iker Casillas" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Iker Casillas</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <!-- Nuevas leyendas añadidas -->
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Raúl González" 
+                     data-img="https://files.catbox.moe/uy4mdu.jpg" 
+                     data-logros="⚽ Máximo goleador histórico (1999-2009) | 🏆 3x UCL | 👑 Capitán y símbolo del club.">
+                    <img src="https://files.catbox.moe/uy4mdu.jpg" alt="Raúl González" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Raúl</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Karim Benzema" 
+                     data-img="https://files.catbox.moe/gbzwnb.jpg" 
+                     data-logros="🏆 Balón de Oro 2022 | ⚽ Bota de Oro 2022 | 🥇 5x UCL | 🐐 2º máximo goleador histórico.">
+                    <img src="https://files.catbox.moe/ptd8hp.jpg" alt="Karim Benzema" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Benzema</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Marcelo Vieira" 
+                     data-img="https://files.catbox.moe/7glbja.jpg" 
+                     data-logros="🏆 5x UCL | ⭐ 6x FIFA FIFPro World XI | 🥇 Jugador con más títulos del club (25).">
+                    <img src="https://files.catbox.moe/m79tll.jpg" alt="Marcelo Vieira" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Marcelo</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-legend rounded-lg shadow-xl bg-gray-200 transition transform hover:scale-105" 
+                     data-name="Toni Kroos" 
+                     data-img="https://files.catbox.moe/xjysmd.jpg" 
+                     data-logros="🏆 5x UCL | ⭐ FIFA FIFPro World XI (2014) | 🎯 Pases perfectos | 🥇 Leyenda del mediocampo.">
+                    <img src="https://files.catbox.moe/jmlofj.jpg" alt="Toni Kroos" class="w-full">
+                    <div class="player-card-info">
+                        <p class="font-bold text-lg">Toni Kroos</p>
+                        <p class="text-sm text-madrid-gold">Ver Logros</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-madrid-blue mb-6 border-b-2 border-madrid-gold pb-1 inline-block">Entrenadores Exitosos (1956 - 2025)</h3>
+            <div class="max-w-3xl mx-auto text-left p-6 bg-madrid-dark-blue text-madrid-white rounded-xl shadow-xl">
+                <ul class="space-y-3">
+                    <li class="border-b border-madrid-gold pb-2">
+                        <p class="font-bold text-madrid-gold">Carlo Ancelotti (2013-2015, 2021-Presente)</p>
+                        <p class="text-sm">🏆 <strong>4 UCL</strong> (2 con RM, 2 con otros), 2 Ligas, 2 Copas del Rey. (Récord de Copas de Europa).</p>
+                    </li>
+                    <li class="border-b border-madrid-gold pb-2">
+                        <p class="font-bold text-madrid-gold">Zinedine Zidane (2016-2018, 2019-2021)</p>
+                        <p class="text-sm">🏆 <strong>3 UCL consecutivas</strong>, 2 Ligas, 2 Mundiales de Clubes. (Ganador nato).</p>
+                    </li>
+                    <li class="border-b border-madrid-gold pb-2">
+                        <p class="font-bold text-madrid-gold">Miguel Muñoz (1960-1974)</p>
+                        <p class="text-sm">🏆 <strong>2 Copas de Europa</strong>, 9 Ligas Españolas. (Entrenador con más títulos ligueros del club).</p>
+                    </li>
+                    <li>
+                        <p class="font-bold text-madrid-gold">Vicente del Bosque (1999-2003)</p>
+                        <p class="text-sm">🏆 <strong>2 UCL</strong>, 2 Ligas. (Éxito en la era de los Galácticos).</p>
+                    </li>
+                </ul>
+            </div>
+            
+            <h3 class="text-3xl font-semibold text-madrid-blue my-8 border-b-2 border-madrid-gold pb-1 inline-block">Álbum de Honor: Leyendas Eternas</h3>
+            <div class="flex flex-wrap justify-center gap-6">
+                <div class="player-card player-card-eternal rounded-lg shadow-xl bg-gray-200">
+                    <img src="https://files.catbox.moe/hzkekj.jpg" alt="Alfredo Di Stéfano" class="w-full">
+                    <div class="player-card-info bg-madrid-dark-blue">
+                        <p class="font-bold text-lg">Di Stéfano</p>
+                        <p class="text-sm text-madrid-gold">1926 - 2014</p>
+                    </div>
+                </div>
+                <div class="player-card player-card-eternal rounded-lg shadow-xl bg-gray-200">
+                    <img src="https://files.catbox.moe/04o3a8.jpg" alt="Ferenc Puskás" class="w-full">
+                    <div class="player-card-info bg-madrid-dark-blue">
+                        <p class="font-bold text-lg">Puskás</p>
+                        <p class="text-sm text-madrid-gold">1927 - 2006</p>
+                    </div>
+                </div>
+                <div class="player-card player-card-eternal rounded-lg shadow-xl bg-gray-200">
+                    <img src="https://files.catbox.moe/051lg6.jpg" alt="Paco Gento" class="w-full">
+                    <div class="player-card-info bg-madrid-dark-blue">
+                        <p class="font-bold text-lg">Paco Gento</p>
+                        <p class="text-sm text-madrid-gold">1933 - 2022</p>
+                    </div>
+                </div>
+                
+                <!-- Nuevas leyendas eternas añadidas -->
+                <div class="player-card player-card-eternal rounded-lg shadow-xl bg-gray-200">
+                    <img src="https://files.catbox.moe/aipiyd.jpg" alt="José Santamaría" class="w-full">
+                    <div class="player-card-info bg-madrid-dark-blue">
+                        <p class="font-bold text-lg">Santamaría</p>
+                        <p class="text-sm text-madrid-gold">1929 - 2013</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-eternal rounded-lg shadow-xl bg-gray-200">
+                    <img src="https://files.catbox.moe/19158y.jpg" alt="Raymond Kopa" class="w-full">
+                    <div class="player-card-info bg-madrid-dark-blue">
+                        <p class="font-bold text-lg">Kopa</p>
+                        <p class="text-sm text-madrid-gold">1931 - 2017</p>
+                    </div>
+                </div>
+                
+                <div class="player-card player-card-eternal rounded-lg shadow-xl bg-gray-200">
+                    <img src="https://files.catbox.moe/2h7ltu.jpg" alt="Miguel Muñoz" class="w-full">
+                    <div class="player-card-info bg-madrid-dark-blue">
+                        <p class="font-bold text-lg">Muñoz</p>
+                        <p class="text-sm text-madrid-gold">1922 - 1990</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <section id="foro" class="forum-section p-8 mb-8 rounded-lg shadow-lg text-center bg-madrid-white">
+            <h2 class="text-4xl font-bold text-madrid-blue mb-8 border-b-2 border-madrid-gold pb-1 inline-block">🗣️ Foro Madridista: Comparte tu Pasión</h2>
+            <p class="mb-6 text-lg">¡Este es tu espacio para conectar con otros madridistas! Cuéntanos tu historia, tus momentos favoritos y lo que significa para ti el Real Madrid.</p>
+
+            <div class="max-w-2xl mx-auto bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                <h3 class="text-2xl font-semibold text-madrid-dark-blue mb-4">Nueva Publicación</h3>
+                <form id="forum-post-form" class="space-y-4">
+                    <div>
+                        <label for="post-name" class="block text-left text-sm font-medium text-gray-700">Tu Nombre:</label>
+                        <input type="text" id="post-name" name="post-name" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-madrid-blue focus:border-madrid-blue" placeholder="Tu nombre o alias" required>
+                    </div>
+                    <div>
+                        <label for="post-content" class="block text-left text-sm font-medium text-gray-700">Tu Historia/Mensaje:</label>
+                        <textarea id="post-content" name="post-content" rows="5" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-madrid-blue focus:border-madrid-blue" placeholder="¿Qué significa el Real Madrid para ti? Comparte tu pasión..." required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-madrid-blue text-madrid-white py-2 px-4 rounded-md hover:bg-madrid-dark-blue transition duration-200">Publicar</button>
+                </form>
+
+                <div id="forum-posts" class="mt-8 pt-6 border-t border-gray-200 space-y-6 text-left">
+                    <h3 class="text-2xl font-semibold text-madrid-dark-blue mb-4">Últimas Publicaciones</h3>
+                    <div class="bg-madrid-white p-4 rounded-lg shadow border border-madrid-gold">
+                        <p class="text-madrid-blue font-bold">@ElMadridistaFiel</p>
+                        <p class="text-gray-700 text-sm mb-2">3 de junio de 2024</p>
+                        <p>Ser del Real Madrid es vivir cada partido con una emoción indescriptible. Mi mejor recuerdo es La Décima, ¡ese gol de Ramos fue puro éxtasis!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contacto" class="contact-section p-8 mb-8 rounded-lg shadow-lg text-center bg-madrid-white">
+            <h2 class="text-4xl font-bold text-madrid-blue mb-8 border-b-2 border-madrid-gold pb-1 inline-block">✉️ Contacto</h2>
+            <p class="mb-6 text-lg">¿Tienes alguna sugerencia o quieres contactarnos? Envíanos un mensaje.</p>
+            <div class="max-w-xl mx-auto bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                <form class="space-y-4">
+                    <div>
+                        <label for="contact-name" class="block text-left text-sm font-medium text-gray-700">Tu Nombre:</label>
+                        <input type="text" id="contact-name" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-madrid-blue focus:border-madrid-blue">
+                    </div>
+                    <div>
+                        <label for="contact-email" class="block text-left text-sm font-medium text-gray-700">Tu Email:</label>
+                        <input type="email" id="contact-email" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-madrid-blue focus:border-madrid-blue">
+                    </div>
+                    <div>
+                        <label for="contact-message" class="block text-left text-sm font-medium text-gray-700">Tu Mensaje:</label>
+                        <textarea id="contact-message" rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-madrid-blue focus:border-madrid-blue"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-madrid-blue text-madrid-white py-2 px-4 rounded-md hover:bg-madrid-dark-blue transition duration-200">Enviar Mensaje</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-madrid-blue text-madrid-white text-center p-4 mt-8">
+        <p>&copy; 2024 Web No Oficial de Fans del Real Madrid. ¡Hala Madrid!</p>
+    </footer>
+
+    <div id="uclModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeUCLModalButton">&times;</span>
+            <h3 class="text-3xl font-bold text-madrid-blue mb-4" id="modal-year"></h3>
+            <p class="text-xl" id="modal-final-info"></p>
+        </div>
+    </div>
+
+    <div id="legendModal" class="modal">
+        <div class="modal-content max-w-sm">
+            <span class="close-button" id="closeLegendModalButton">&times;</span>
+            <h3 class="text-2xl font-bold text-madrid-blue mb-4" id="legend-modal-name"></h3>
+            <div class="mb-4">
+                <img id="legend-modal-img" src="" alt="Imagen del Jugador" class="w-32 h-32 object-cover mx-auto rounded-full border-4 border-madrid-gold shadow-md">
+            </div>
+            <p class="text-lg font-semibold text-gray-800 mb-2">Logros Individuales:</p>
+            <ul class="list-disc list-inside text-left mx-auto max-w-xs text-md" id="legend-modal-logros">
+                </ul>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica del Eslogan del Logo
+            const logo = document.getElementById('logo-slogan');
+            const slogans = ["Uno", "Dos", "Tres", "¡Hala Madrid!"];
+            let sloganIndex = 0;
+
+            function updateSlogan() {
+                // Actualiza el texto del tooltip
+                logo.title = slogans[sloganIndex];
+                sloganIndex = (sloganIndex + 1) % slogans.length; 
+            }
+            updateSlogan(); // Inicializar
+
+            // Se usa el contenedor del logo para el evento click
+            const logoContainer = document.getElementById('logo-container');
+            logoContainer.addEventListener('click', () => {
+                updateSlogan();
+                
+                // Efecto de rebote simple
+                logo.classList.add('scale-125');
+                setTimeout(() => { 
+                    logo.classList.remove('scale-125'); 
+                }, 100);
+            });
+
+            // Lógica del Carrusel de Imágenes
+            const carouselSlide = document.getElementById('carousel-slide');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const images = carouselSlide.querySelectorAll('img');
+            let currentImageIndex = 0;
+            
+            function getSlideWidth() {
+                return images.length > 0 ? images[0].clientWidth : 0;
+            }
+
+            function moveToSlide(index) {
+                const imageWidth = getSlideWidth();
+                if (imageWidth === 0) return;
+
+                if (index < 0) {
+                    currentImageIndex = images.length - 1;
+                } else if (index >= images.length) {
+                    currentImageIndex = 0;
+                } else {
+                    currentImageIndex = index;
+                }
+                carouselSlide.style.transform = `translateX(${-currentImageIndex * imageWidth}px)`;
+            }
+
+            prevButton.addEventListener('click', () => {
+                moveToSlide(currentImageIndex - 1);
+            });
+
+            nextButton.addEventListener('click', () => {
+                moveToSlide(currentImageIndex + 1);
+            });
+
+            window.addEventListener('resize', () => {
+                moveToSlide(currentImageIndex);
+            });
+
+            // Lógica del Modal 1: UCL
+            const uclModal = document.getElementById('uclModal');
+            const closeUCLModalButton = document.getElementById('closeUCLModalButton');
+            const modalYear = document.getElementById('modal-year');
+            const modalFinalInfo = document.getElementById('modal-final-info');
+            const trophyItems = document.querySelectorAll('.trophy-item');
+
+            trophyItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const year = item.dataset.year;
+                    const finalInfo = item.dataset.final;
+                    modalYear.textContent = `Campeón de Europa ${year}`;
+                    modalFinalInfo.textContent = finalInfo;
+                    uclModal.style.display = 'flex';
+                });
+            });
+
+            closeUCLModalButton.addEventListener('click', () => {
+                uclModal.style.display = 'none';
+            });
+            //---------------------------------------------------------
+
+            // Lógica del Modal 2: Logros de Leyendas (NUEVO)
+            const legendModal = document.getElementById('legendModal');
+            const closeLegendModalButton = document.getElementById('closeLegendModalButton');
+            const legendItems = document.querySelectorAll('.player-card-legend');
+            const legendModalName = document.getElementById('legend-modal-name');
+            const legendModalImg = document.getElementById('legend-modal-img');
+            const legendModalLogros = document.getElementById('legend-modal-logros');
+
+            legendItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const name = item.dataset.name;
+                    const img = item.dataset.img;
+                    const logros = item.dataset.logros; // String con los logros separados por '|'
+
+                    legendModalName.textContent = name;
+                    legendModalImg.src = img;
+                    
+                    // Limpiar y llenar la lista de logros
+                    legendModalLogros.innerHTML = '';
+                    logros.split('|').forEach(logro => {
+                        const li = document.createElement('li');
+                        li.textContent = logro.trim();
+                        legendModalLogros.appendChild(li);
+                    });
+
+                    legendModal.style.display = 'flex';
+                });
+            });
+
+            closeLegendModalButton.addEventListener('click', () => {
+                legendModal.style.display = 'none';
+            });
+            //---------------------------------------------------------
+
+            // Lógica del menú móvil
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const navLinks = document.querySelector('.nav-links-custom');
+
+            mobileMenuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            // Cerrar CUALQUIER modal al hacer clic fuera de él
+            window.addEventListener('click', (event) => {
+                if (event.target == uclModal) {
+                    uclModal.style.display = 'none';
+                }
+                if (event.target == legendModal) {
+                    legendModal.style.display = 'none';
+                }
+            });
+
+            // Lógica del Foro Madridista (Simulado, sin cambios)
+            const forumPostForm = document.getElementById('forum-post-form');
+            const forumPostsContainer = document.getElementById('forum-posts');
+
+            forumPostForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const nameInput = document.getElementById('post-name');
+                const contentInput = document.getElementById('post-content');
+
+                const name = nameInput.value.trim();
+                const content = contentInput.value.trim();
+
+                if (name && content) {
+                    const newPost = document.createElement('div');
+                    newPost.classList.add('bg-madrid-white', 'p-4', 'rounded-lg', 'shadow', 'border', 'border-madrid-gold');
+                    
+                    const date = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                    newPost.innerHTML = `
+                        <p class="text-madrid-blue font-bold">@${name}</p>
+                        <p class="text-gray-700 text-sm mb-2">${date}</p>
+                        <p>${content}</p>
+                    `;
+                    forumPostsContainer.prepend(newPost); 
+
+                    nameInput.value = '';
+                    contentInput.value = '';
+                } else {
+                    alert('Por favor, rellena tu nombre y tu mensaje para publicar.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

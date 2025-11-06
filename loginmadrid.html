@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Hala Madrid! - Acceso Madridista</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'madrid-blue': '#004993',
+                        'madrid-gold': '#FFD700',
+                        'madrid-white': '#ffffff',
+                        'madrid-dark-blue': '#011E48',
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .login-container {
+            background: linear-gradient(135deg, #004993 0%, #011E48 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://files.catbox.moe/sz9rqe.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        .login-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transform: translateY(0);
+            transition: transform 0.5s ease;
+        }
+        
+        .login-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .logo-container {
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            background-color: #004993;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 5px solid #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .logo img {
+            width: 80px;
+            height: auto;
+        }
+        
+        .login-title {
+            color: #004993;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .slider-container {
+            background-color: #f0f0f0;
+            border-radius: 50px;
+            height: 60px;
+            position: relative;
+            margin: 40px 0;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .slider-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .slider-thumb {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #004993 0%, #011E48 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .slider-thumb i {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .slider-success {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #004993 0%, #011E48 100%);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .slider-instruction {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        .madridista-quote {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #FFD700;
+        }
+        
+        .madridista-quote p {
+            font-style: italic;
+            color: #004993;
+            margin: 0;
+        }
+        
+        .trophy-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .trophy {
+            position: absolute;
+            font-size: 2rem;
+            color: #FFD700;
+            opacity: 0;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .floating-trophy {
+            position: absolute;
+            font-size: 2rem;
+            color: #FFD700;
+            opacity: 0;
+            animation: float 5s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Página de Login -->
+    <div class="login-container" id="loginPage">
+        <div class="trophy-animation" id="trophyAnimation"></div>
+        
+        <div class="login-card">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="https://files.catbox.moe/i0hmqv.png" alt="Real Madrid Logo">
+                </div>
+            </div>
+            
+            <h1 class="login-title">¡Hala Madrid!</h1>
+            <p class="login-subtitle">Acceso Exclusivo para Madridistas</p>
+            
+            <div class="slider-container" id="sliderContainer">
+                <div class="slider-track" id="sliderTrack">Desliza para entrar al Bernabéu</div>
+                <div class="slider-thumb" id="sliderThumb">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="slider-success" id="sliderSuccess">
+                    <i class="fas fa-check"></i> ¡Acceso Concedido!
+                </div>
+            </div>
+            
+            <p class="slider-instruction">Desliza el botón hacia la derecha para acceder</p>
+            
+            <div class="madridista-quote">
+                <p>"El Real Madrid no es solo un club de fútbol, es una forma de vida. Una pasión que se transmite de generación en generación."</p>
+            </div>
+        </div>
+        
+        <!-- Trofeos flotantes -->
+        <div class="floating-trophy" style="left: 10%; animation-delay: 0s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 20%; animation-delay: 1s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 30%; animation-delay: 2s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 40%; animation-delay: 3s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 50%; animation-delay: 4s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 60%; animation-delay: 0.5s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 70%; animation-delay: 1.5s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 80%; animation-delay: 2.5s;"><i class="fas fa-trophy"></i></div>
+        <div class="floating-trophy" style="left: 90%; animation-delay: 3.5s;"><i class="fas fa-trophy"></i></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliderThumb = document.getElementById('sliderThumb');
+            const sliderContainer = document.getElementById('sliderContainer');
+            const sliderTrack = document.getElementById('sliderTrack');
+            const sliderSuccess = document.getElementById('sliderSuccess');
+            const trophyAnimation = document.getElementById('trophyAnimation');
+            
+            let isDragging = false;
+            let startX;
+            let currentX;
+            let thumbPosition = 0;
+            const maxPosition = sliderContainer.offsetWidth - sliderThumb.offsetWidth - 10;
+            
+            // Eventos para el deslizador
+            sliderThumb.addEventListener('mousedown', startDrag);
+            sliderThumb.addEventListener('touchstart', startDrag);
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            function startDrag(e) {
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                currentX = startX;
+                sliderThumb.style.transition = 'none';
+                document.body.style.userSelect = 'none';
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                
+                const deltaX = currentX - startX;
+                thumbPosition = Math.max(0, Math.min(deltaX, maxPosition));
+                
+                sliderThumb.style.left = (5 + thumbPosition) + 'px';
+                
+                // Cambiar el icono cuando se acerca al final
+                if (thumbPosition > maxPosition * 0.7) {
+                    sliderThumb.innerHTML = '<i class="fas fa-arrow-right"></i>';
+                } else {
+                    sliderThumb.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                }
+                
+                // Cambiar el texto de la pista
+                if (thumbPosition > maxPosition * 0.5) {
+                    sliderTrack.textContent = "¡Casi ahí! Sigue deslizando";
+                }
+                
+                // Efecto de éxito cuando llega al final
+                if (thumbPosition >= maxPosition) {
+                    sliderSuccess.style.opacity = '1';
+                    sliderTrack.style.opacity = '0';
+                    
+                    // Crear animación de trofeos
+                    createTrophyAnimation();
+                    
+                    // Redirigir a la página principal después de un breve retraso
+                    setTimeout(() => {
+                        window.location.href = 'bernabeu.html';
+                    }, 1500);
+                }
+            }
+            
+            function endDrag() {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                document.body.style.userSelect = 'auto';
+                
+                // Si no llegó al final, volver a la posición inicial
+                if (thumbPosition < maxPosition) {
+                    sliderThumb.style.transition = 'left 0.3s ease';
+                    sliderThumb.style.left = '5px';
+                    thumbPosition = 0;
+                    
+                    // Restaurar el icono y texto
+                    sliderThumb.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                    sliderTrack.textContent = "Desliza para entrar al Bernabéu";
+                    sliderTrack.style.opacity = '1';
+                    sliderSuccess.style.opacity = '0';
+                }
+            }
+            
+            function createTrophyAnimation() {
+                // Crear múltiples trofeos animados
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        const trophy = document.createElement('div');
+                        trophy.className = 'trophy';
+                        trophy.innerHTML = '<i class="fas fa-trophy"></i>';
+                        
+                        // Posición aleatoria
+                        const left = Math.random() * 100;
+                        trophy.style.left = left + '%';
+                        trophy.style.top = '50%';
+                        
+                        // Tamaño aleatorio
+                        const size = 20 + Math.random() * 30;
+                        trophy.style.fontSize = size + 'px';
+                        
+                        // Color dorado con variación
+                        const goldVariation = Math.random() * 50 - 25;
+                        trophy.style.color = 'rgb(255, ' + (215 + goldVariation) + ', 0)';
+                        
+                        trophyAnimation.appendChild(trophy);
+                        
+                        // Animación
+                        setTimeout(() => {
+                            trophy.style.transition = 'all 1s ease';
+                            trophy.style.transform = 'translateY(-100px) scale(1.5)';
+                            trophy.style.opacity = '1';
+                            
+                            // Eliminar después de la animación
+                            setTimeout(() => {
+                                trophy.remove();
+                            }, 1000);
+                        }, 10);
+                    }, i * 100);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
